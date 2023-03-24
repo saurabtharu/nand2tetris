@@ -11,8 +11,8 @@
 ## All projects from Nand2Tetris
 
 
-- [x] [Project 1: Boolean Logic](https://github.com/saurabtharu/nand2tetris/tree/main/projects/01)
-- [ ] [Project 2: Boolean Arithmetic](https://github.com/saurabtharu/nand2tetris/tree/main/projects/02)
+- [x] [Project 1: Boolean Logic](https://gitlab.com/0xbaruas/nand2tetris/-/tree/main/projects/01)
+- [ ] [Project 2: Boolean Arithmetic](#)
 - [ ] [Project 3: Sequential Logic](#) 
 - [ ] [Project 4: Machine Language](#) 
 - [ ] [Project 5: Computer Architecture](#) 
