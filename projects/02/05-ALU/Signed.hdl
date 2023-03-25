@@ -1,0 +1,8 @@
+CHIP Signed {
+    IN in[16],
+       sel[3];
+    OUT out;
+
+    PARTS:
+    Or16Way(in[0..14]=false,in[15]=in[15],out=out);
+}

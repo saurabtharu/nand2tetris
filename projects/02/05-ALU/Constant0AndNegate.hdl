@@ -1,0 +1,15 @@
+CHIP Constant0AndNegate {
+  IN in[16],sel1,sel2;
+
+  OUT out[16];
+
+  PARTS:
+
+  DMux16(in=in,sel=sel1,a=m1,b=m1a);
+  And16(a=m1a,b=false,out=m2);
+  Mux16(a=m1,b=m2,sel=sel1,out=n1);
+  DMux16(in=n1,sel=sel2,a=o1,b=o1a);
+  Not16(in=o1a,out=o2);
+  Mux16(a=o1,b=o2,sel=sel2,out=out);
+
+}

@@ -1,0 +1,85 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/ALU.hdl
+
+/**
+ * The ALU (Arithmetic Logic Unit).
+ * Computes one of the following functions:
+ * x+y, x-y, y-x, 0, 1, -1, x, y, -x, -y, !x, !y,
+ * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs,
+ * according to 6 input bits denoted zx,nx,zy,ny,f,no.
+ * In addition, the ALU computes two 1-bit outputs:
+ * if the ALU output == 0, zr is set to 1; otherwise zr is set to 0;
+ * if the ALU output < 0, ng is set to 1; otherwise ng is set to 0.
+ */
+
+// Implementation: the ALU logic manipulates the x and y inputs
+// and operates on the resulting values, as follows:
+// if (zx == 1) set x = 0        // 16-bit constant
+// if (nx == 1) set x = !x       // bitwise not
+// if (zy == 1) set y = 0        // 16-bit constant
+// if (ny == 1) set y = !y       // bitwise not
+// if (f == 1)  set out = x + y  // integer 2's complement addition
+// if (f == 0)  set out = x & y  // bitwise and
+// if (no == 1) set out = !out   // bitwise not
+// if (out == 0) set zr = 1
+// if (out < 0) set ng = 1
+
+CHIP ALU {
+    IN
+        x[16], y[16],  // 16-bit inputs
+        zx, // zero the x input?
+        nx, // negate the x input?
+        zy, // zero the y input?
+        ny, // negate the y input?
+        f,  // compute out = x + y (if 1) or x & y (if 0)
+        no; // negate the out output?
+
+    OUT
+        out[16], // 16-bit output
+        zr, // 1 if (out == 0), 0 otherwise
+        ng; // 1 if (out < 0),  0 otherwise
+
+    PARTS:
+
+    /* for constant 0 and negating the x input */
+    Constant0AndNegate(in=x,sel1=zx,sel2=nx,out=p1);
+    /*
+    DMux16(in=x,sel=zx,a=m1,b=m1a);
+    And16(a=m1a,b=false,out=m2);
+    Mux16(a=m1,b=m2,sel=zx,out=n1);
+    DMux16(in=n1,sel=nx,a=o1,b=o1a);
+    Not16(in=o1a,out=o2);
+    Mux16(a=o1,b=o2,sel=nx,out=p1);
+    */
+
+
+    /* for constant 0 and negating the y input */
+    Constant0AndNegate(in=y,sel1=zy,sel2=ny,out=p2);
+    /*
+    DMux16(in=y,sel=zy,a=m3,b=m3a);
+    And16(a=m3a,b=false,out=m4);
+    Mux16(a=m3,b=m4,sel=zy,out=n2);
+    DMux16(in=n2,sel=ny,a=o3,b=o3a);
+    Not16(in=o3a,out=o4);
+    Mux16(a=o3,b=o4,sel=ny,out=p2);
+    */
+
+    DMux16(in=p1,sel=f,a=q1,b=q2);            /* takes 16-bit the in input */
+    And16(a=q1,b=p2,out=r1);
+    Add16(a=q2,b=p2,out=r2);
+    Mux16(a=r1,b=r2,sel=f,out=s);
+    /* Or16(a=r1,b=r2,out=s); */
+
+    DMux16(in=s,sel=no,a=s1,b=s1a);
+    Not16(in=s1a,out=s2);
+    Mux16(a=s1,b=s2,sel=no,out=z);
+
+    Or16Way(in=z,out=h1);                   /* takes single 16 bit input and gives one bit output */
+    Not(in=h1,out=zr);                      /* determine whether the output of the function is zero or not */
+    Signed(in=z,out=ng);                    /* custom internal gate for calculating sign of the number */
+    Or16(a=false,b=z,out=out);
+
+
+}
