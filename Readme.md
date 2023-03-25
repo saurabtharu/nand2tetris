@@ -12,7 +12,7 @@
 
 
 - [x] [Project 1: Boolean Logic](https://gitlab.com/0xbaruas/nand2tetris/-/tree/main/projects/01)
-- [ ] [Project 2: Boolean Arithmetic](#)
+- [x] [Project 2: Boolean Arithmetic](https://gitlab.com/0xbaruas/nand2tetris/-/tree/main/projects/02)
 - [ ] [Project 3: Sequential Logic](#) 
 - [ ] [Project 4: Machine Language](#) 
 - [ ] [Project 5: Computer Architecture](#) 
