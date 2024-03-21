@@ -1,0 +1,119 @@
+
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/CPU.hdl
+
+/**
+ * The Hack CPU (Central Processing unit), consisting of an ALU,
+ * two registers named A and D, and a program counter named PC.
+ * The CPU is designed to fetch and execute instructions written in 
+ * the Hack machine language. In particular, functions as follows:
+ * Executes the inputted instruction according to the Hack machine 
+ * language specification. The D and A in the language specification
+ * refer to CPU-resident registers, while M refers to the external
+ * memory location addressed by A, i.e. to Memory[A]. The inM input 
+ * holds the value of this location. If the current instruction needs 
+ * to write a value to M, the value is placed in outM, the address 
+ * of the target location is placed in the addressM output, and the 
+ * writeM control bit is asserted. (When writeM==0, any value may 
+ * appear in outM). The outM and writeM outputs are combinational: 
+ * they are affected instantaneously by the execution of the current 
+ * instruction. The addressM and pc outputs are clocked: although they 
+ * are affected by the execution of the current instruction, they commit 
+ * to their new values only in the next time step. If reset==1 then the 
+ * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
+ * than to the address resulting from executing the current instruction. 
+ */
+
+CHIP CPU-test {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+
+    /* C instruction or A instruction */
+    /* if instruction[15]=0 then A instruction */
+    /* if instruction[15]=1 then C instruction */
+
+        Not(in=instruction[15],out=Ainstruction);
+        Not(in=Ainstruction,out=Cinstruction);
+   
+
+        And(a=Cinstruction, b=instruction[5], out=ALUtoA);
+        Mux16(a=instruction,b=aluOut,sel=ALUtoA,out=muxOut);
+        /*
+
+            i  x  x   a  c c  c c c c d d d j j j
+            15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
+
+            Not operation of 16th bit i.e. address[15], followed by Or operation 
+            with 6th bit i.e. addresss[5] is done for C instruction as we know that 
+            all the 15 constants need to be loaded and there is not any destination 
+            loading control bit in it's instruction so 15th bit negated i.e. we get 1, 
+            which can be used as load bit for the A register for C instruction
+        */
+
+        Or(a=Ainstruction,b=instruction[5],out=regAload);
+        ARegister(in=muxOut,load=regAload,out[0..14]=addressM,out=regAout);
+        /*  if (a==0) ALUinput y=A
+            if (a==1) ALUinput y=M
+        */
+        Mux16(a=regAout,b=inM,sel=instruction[12],out=AorMout);
+
+        /* D register  */
+        And(a=instruction[15],b=instruction[4],out=regDload);
+        DRegister(in=aluOut,load=regDload,out=regDout);
+
+        
+       /* 
+        if instruction is A-instruction then instruction[15]=0 so we don't need to write in M
+        if instruction is C-instruction then instruction[15]=1 so we need to write in M 
+       */
+
+        And(a=instruction[15],b=instruction[3],out=writeM);
+
+
+        ALU(x=regDout,y=AorMout,zx=instruction[11],nx=instruction[10],zy=instruction[9],ny=instruction[8],f=instruction[7],no=instruction[6],out=aluOut,zr=zeroFlag,ng=negativeFlag,out=outM);
+
+        /* Positive flag  */
+        Or(a=zeroFlag,b=negativeFlag,out=ZeroOrNegative);
+        Not(in=ZeroOrNegative,out=positiveFlag);
+         
+        /* if negativeFlag=1 and j1=1 */
+        And(a=negativeFlag,b=instruction[2],out=jlt);
+        
+        /* if zeroFlag=1 and j2=1    */
+        And(a=zeroFlag,b=instruction[1],out=jeq);
+
+        /* if positiveFlag=1 and j1=1 */
+        And(a=positiveFlag,b=instruction[0],out=jgt);
+
+
+        /* if jnt=1, jeq=1, jgt=1 then load = 1*/
+        Or(a=jlt,b=jeq,out=EqualOrLess);
+        Or(a=EqualOrLess,b=jgt,out=JumpToA);
+        And(a=Cinstruction,b=JumpToA,out=loadPC);
+        
+
+       /* inc input of PC  
+            if loadPC=1
+                load=1
+            if loadPC=0
+                inc=1
+       */
+       Not(in=loadPC,out=PCinc); 
+       PC(in=regAout,reset=reset,inc=PCinc,load=loadPC,out[0..14]=pc);
+
+
+
+}
