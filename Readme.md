@@ -11,11 +11,11 @@
 ## All projects from Nand2Tetris
 
 
-- [x] [Project 1: Boolean Logic](https://gitlab.com/0xbaruas/nand2tetris/-/tree/main/projects/01)
-- [x] [Project 2: Boolean Arithmetic](https://gitlab.com/0xbaruas/nand2tetris/-/tree/main/projects/02)
-- [x] [Project 3: Sequential Logic](#) 
-- [x] [Project 4: Machine Language](#) 
-- [x] [Project 5: Computer Architecture](#) 
+- [x] [Project 1: Boolean Logic](https://github.com/saurabtharu/nand2tetris/tree/main/projects/01)
+- [x] [Project 2: Boolean Arithmetic](https://github.com/saurabtharu/nand2tetris/tree/main/projects/02)
+- [x] [Project 3: Sequential Logic](https://github.com/saurabtharu/nand2tetris/tree/main/projects/03) 
+- [x] [Project 4: Machine Language](https://github.com/saurabtharu/nand2tetris/tree/main/projects/04) 
+- [x] [Project 5: Computer Architecture](https://github.com/saurabtharu/nand2tetris/tree/main/projects/05) 
 - [ ] [Project 6: Assembler](#)
 - [ ] [Project 7: VM I: Stack Arithmetic ](#)  
 - [ ] [Project 8: VM II: Program Control](#)   
